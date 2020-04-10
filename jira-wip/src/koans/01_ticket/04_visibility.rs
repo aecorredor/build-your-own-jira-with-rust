@@ -65,7 +65,7 @@ mod visibility {
     mod tests {
         /// Add the necessary `pub` modifiers in the code above to avoid having
         /// the compiler complaining about this use statement.
-        use super::ticket::{create_ticket, Status, Ticket};
+        // use super::ticket::{create_ticket, Status, Ticket};
 
         /// Be careful though! We don't want this function to compile after you
         /// have changed visibility to make the use statement compile!
