@@ -19,7 +19,7 @@ mod ownership {
     pub struct Ticket {
         title: String,
         description: String,
-        status: Status
+        status: Status,
     }
 
     /// Methods on a struct are defined in `impl` blocks.
@@ -80,21 +80,22 @@ mod ownership {
         /// https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html
         pub fn title(&self) -> &String {
             /// We are returning an immutable reference (&) to our title field.
-            /// This will allow us to access this field without being able to mutate it:
-            /// encapsulation is guaranteed and we can rest assured that our invariants
-            /// cannot be violated.
+            /// This will allow us to access this field without being able to
+            /// mutate it: encapsulation is guaranteed and we can rest assured
+            /// that our invariants cannot be violated.
             &self.title
         }
 
-        /// Replace __ with the proper types to get accessor methods for the other two fields.
-        /// If you are asking yourself why we are returning &str instead of &String, check out:
+        /// Replace __ with the proper types to get accessor methods for the
+        /// other two fields. If you are asking yourself why we are returning
+        /// &str instead of &String, check out:
         /// https://blog.thoughtram.io/string-vs-str-in-rust/
-        pub fn description(__) -> __ {
-           todo!()
+        pub fn description(&self) -> &String {
+            &self.description
         }
 
-        pub fn status(__) -> __ {
-           todo!()
+        pub fn status(&self) -> &Status {
+            &self.status
         }
     }
 
@@ -118,15 +119,17 @@ mod ownership {
 
     #[cfg(test)]
     mod tests {
-        use super::{create_ticket, Ticket};
         use super::super::visibility::ticket::Status;
+        use super::{create_ticket, Ticket};
 
         fn verify_without_tampering() {
-            let ticket: Ticket = create_ticket("A title".into(), "A description".into(), Status::ToDo);
+            let ticket: Ticket =
+                create_ticket("A title".into(), "A description".into(), Status::ToDo);
 
-            /// Instead of accessing the field `ticket.description` we are calling the accessor
-            /// method, `ticket.description()`, which returns us a reference to the field value
-            /// and allows us to verify its value without having the chance to modify it.
+            /// Instead of accessing the field `ticket.description` we are
+            /// calling the accessor method, `ticket.description()`, which
+            /// returns us a reference to the field value and allows us to
+            /// verify its value without having the chance to modify it.
             assert_eq!(ticket.description(), "A description");
             assert_eq!(ticket.title(), "A title");
         }
