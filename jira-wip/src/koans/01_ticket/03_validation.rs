@@ -13,19 +13,33 @@ mod validation {
     }
 
     /// So far we have allowed any string as a valid title and description.
-    /// That's not what would happen in JIRA: we wouldn't allow tickets with an empty title,
-    /// for example.
-    /// Both title and description would also have length limitations: the Divine Comedy probably
-    /// shouldn't be allowed as a ticket description.
+    /// That's not what would happen in JIRA: we wouldn't allow tickets with an
+    /// empty title, for example.
+    /// Both title and description would also have length limitations: the
+    /// Divine Comedy probably shouldn't be allowed as a ticket description.
     ///
-    /// We want to define a function that takes in a title, a description and a status and
-    /// performs validation: it panics if validation fails, it returns a `Ticket` if validation
-    /// succeeds.
+    /// We want to define a function that takes in a title, a description and a
+    /// status and performs validation: it panics if validation fails, it
+    /// returns a `Ticket` if validation succeeds.
     ///
-    /// We will learn a better way to handle recoverable errors such as this one further along,
-    /// but let's rely on panic for the time being.
+    /// We will learn a better way to handle recoverable errors such as this one
+    /// further along, but let's rely on panic for the time being.
     fn create_ticket(title: String, description: String, status: Status) -> Ticket {
-        todo!()
+        let title_length = title.len();
+
+        if title_length > 50 || title_length < 1 {
+            panic!("invalid title length")
+        }
+
+        if description.len() > 3000 {
+            panic!("description cannot be longer than 3000 chars")
+        }
+
+        Ticket {
+            title,
+            description,
+            status,
+        }
     }
 
     #[cfg(test)]
