@@ -1,6 +1,8 @@
 mod recap {
-    /// We have come quite a long way now: from how to define a struct to traits and derive macros,
-    /// touching on tests, module system, visibility, ownership and method syntax.
+    /// We have come quite a long way now: from how to define a struct to traits
+    /// and derive macros, touching on tests, module system, visibility,
+    /// ownership and method syntax.
+    ///
     /// Take a deep breath, stretch a bit, review what we have done.
     ///
     /// Then get ready to dive in the next section!
@@ -55,7 +57,7 @@ mod recap {
     mod tests {
         #[test]
         fn the_next_step_of_your_journey() {
-            let i_am_ready_to_continue = __;
+            let i_am_ready_to_continue = true;
 
             assert!(i_am_ready_to_continue);
         }
