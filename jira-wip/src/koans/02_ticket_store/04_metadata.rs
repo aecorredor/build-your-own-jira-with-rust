@@ -1,9 +1,13 @@
 mod metadata {
     use super::id_generation::TicketId;
     use super::recap::Status;
-    /// `chrono` is the go-to crate in the Rust ecosystem when working with time.
-    /// `DateTime` deals with timezone-aware datetimes - it takes the timezone as a type parameter.
-    /// `DateTime<Utc>` is the type for datetimes expressed in the coordinated universal time.
+    /// `chrono` is the go-to crate in the Rust ecosystem when working with
+    /// time.
+    ///
+    /// `DateTime` deals with timezone-aware datetimes - it takes the timezone
+    /// as a type parameter.
+    /// `DateTime<Utc>` is the type for datetimes expressed in the coordinated
+    /// universal time.
     /// See:
     /// - https://en.wikipedia.org/wiki/Coordinated_Universal_Time
     /// - https://docs.rs/chrono/0.4.11/chrono/
@@ -15,12 +19,13 @@ mod metadata {
         current_id: TicketId,
     }
 
-    /// When we retrieve a ticket we saved, we'd like to receive with it a bunch of metadata:
+    /// When we retrieve a ticket we saved, we'd like to receive with it a bunch
+    /// of metadata:
     /// - the generated id;
     /// - the datetime of its creation.
     ///
-    /// Make the necessary changes without touching the types of the inputs and the returned
-    /// objects in our methods!
+    /// Make the necessary changes without touching the types of the inputs and
+    /// the returned objects in our methods!
     /// You can make inputs mutable, if needed.
     impl TicketStore {
         pub fn new() -> TicketStore {
@@ -30,8 +35,12 @@ mod metadata {
             }
         }
 
-        pub fn save(&mut self, ticket: Ticket) -> TicketId {
+        pub fn save(&mut self, mut ticket: Ticket) -> TicketId {
             let id = self.generate_id();
+
+            ticket.id = Some(id);
+            ticket.created_at = Some(Utc::now());
+
             self.data.insert(id, ticket);
             id
         }
@@ -51,6 +60,8 @@ mod metadata {
         title: String,
         description: String,
         status: Status,
+        created_at: Option<DateTime<Utc>>,
+        id: Option<TicketId>,
     }
 
     impl Ticket {
@@ -67,13 +78,20 @@ mod metadata {
         }
 
         // The datetime when the ticket was saved in the store, if it was saved.
-        pub fn created_at(&self) -> __ {
-           todo!()
+        pub fn created_at(&self) -> Option<&DateTime<Utc>> {
+            match &self.created_at {
+                Some(v) => Some(&v),
+                None => None,
+            }
         }
 
-        // The id associated with the ticket when it was saved in the store, if it was saved.
-        pub fn id(&self) -> __ {
-           todo!()
+        // The id associated with the ticket when it was saved in the store, if
+        // it was saved.
+        pub fn id(&self) -> Option<&TicketId> {
+            match &self.id {
+                Some(v) => Some(&v),
+                None => None,
+            }
         }
     }
 
@@ -92,6 +110,8 @@ mod metadata {
             title,
             description,
             status,
+            created_at: None,
+            id: None,
         }
     }
 

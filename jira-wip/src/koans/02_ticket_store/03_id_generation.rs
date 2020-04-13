@@ -22,14 +22,14 @@ mod id_generation {
     // Feel free to add more fields to `TicketStore` to solve this koan!
     struct TicketStore {
         data: HashMap<TicketId, Ticket>,
-        ticketCount: u32,
+        ticket_count: u32,
     }
 
     impl TicketStore {
         pub fn new() -> TicketStore {
             TicketStore {
                 data: HashMap::new(),
-                ticketCount: 0,
+                ticket_count: 0,
             }
         }
 
@@ -63,8 +63,8 @@ mod id_generation {
         }
 
         fn generate_id(&mut self) -> TicketId {
-            self.ticketCount += 1;
-            self.ticketCount
+            self.ticket_count += 1;
+            self.ticket_count
         }
     }
 
