@@ -1,9 +1,10 @@
 mod id_generation {
-    use std::collections::HashMap;
     use super::recap::Ticket;
+    use std::collections::HashMap;
 
     /// Let's define a type-alias for our ticket id.
-    /// It's a lightweight technique to add a semantic layer to the underlying data type.
+    /// It's a lightweight technique to add a semantic layer to the underlying
+    /// data type.
     ///
     /// The underlying type remains `u32`.
     /// This remains valid code:
@@ -11,42 +12,47 @@ mod id_generation {
     /// let number: u32 = 1;
     /// let ticket_id: TicketId = number;
     /// ```
-    /// If we want to be sure we aren't mixing up ticket ids and `u32` variables with
-    /// a different semantic meaning, we would have to create a new type,
+    /// If we want to be sure we aren't mixing up ticket ids and `u32` variables
+    /// with a different semantic meaning, we would have to create a new type,
     /// e.g. `struct TicketId(u32)`.
-    /// For now this doesn't feel necessary - we don't have many `u32`s flying around.
+    /// For now this doesn't feel necessary - we don't have many `u32`s flying
+    /// around.
     pub type TicketId = u32;
 
     // Feel free to add more fields to `TicketStore` to solve this koan!
     struct TicketStore {
         data: HashMap<TicketId, Ticket>,
+        ticketCount: u32,
     }
 
     impl TicketStore {
-        pub fn new() -> TicketStore
-        {
+        pub fn new() -> TicketStore {
             TicketStore {
                 data: HashMap::new(),
+                ticketCount: 0,
             }
         }
 
-        /// So far we have taken the `id` as one the parameters of our `save` method.
+        /// So far we have taken the `id` as one the parameters of our `save`
+        /// method.
         ///
-        /// What happens when you call save passing two different tickets with the same id?
-        /// We have enforced with a test our expectation: the second ticket overwrites the first.
+        /// What happens when you call save passing two different tickets with
+        /// the same id?
+        /// We have enforced with a test our expectation: the second ticket
+        /// overwrites the first.
+        ///
         /// The other option would have been to error out.
         ///
-        /// This isn't how JIRA works: you don't get to choose the id of your ticket,
-        /// it's generated for you and its uniqueness is guaranteed.
-        /// There is also another peculiarity: ids are integers and they are monotonically
-        /// increasing (the first ticket on a board will be `BOARDNAME-1`, the second
-        /// `BOARDNAME-2` and so on).
+        /// This isn't how JIRA works: you don't get to choose the id of your
+        /// ticket, it's generated for you and its uniqueness is guaranteed.
+        /// There is also another peculiarity: ids are integers and they are
+        /// monotonically increasing (the first ticket on a board will be
+        /// `BOARDNAME-1`, the second `BOARDNAME-2` and so on).
         ///
         /// We want the same behaviour in our clone, IronJira.
-        /// `TicketStore` will take care of generating an id for our ticket and the id
-        /// will be returned by `save` after insertion.
-        pub fn save(&mut self, ticket: Ticket) -> TicketId
-        {
+        /// `TicketStore` will take care of generating an id for our ticket and
+        /// the id will be returned by `save` after insertion.
+        pub fn save(&mut self, ticket: Ticket) -> TicketId {
             let id = self.generate_id();
             self.data.insert(id, ticket);
             id
@@ -56,20 +62,20 @@ mod id_generation {
             self.data.get(id)
         }
 
-        fn generate_id(__) -> TicketId {
-           todo!()
+        fn generate_id(&mut self) -> TicketId {
+            self.ticketCount += 1;
+            self.ticketCount
         }
     }
 
     #[cfg(test)]
     mod tests {
-        use super::*;
         use super::super::recap::{create_ticket, Status};
-        use fake::{Faker, Fake};
+        use super::*;
+        use fake::{Fake, Faker};
 
         #[test]
-        fn a_ticket_with_a_home()
-        {
+        fn a_ticket_with_a_home() {
             let ticket = generate_ticket(Status::ToDo);
             let mut store = TicketStore::new();
 
@@ -80,8 +86,7 @@ mod id_generation {
         }
 
         #[test]
-        fn a_missing_ticket()
-        {
+        fn a_missing_ticket() {
             let ticket_store = TicketStore::new();
             let ticket_id = Faker.fake();
 
@@ -89,8 +94,7 @@ mod id_generation {
         }
 
         #[test]
-        fn id_generation_is_monotonic()
-        {
+        fn id_generation_is_monotonic() {
             let n_tickets = 100;
             let mut store = TicketStore::new();
 
