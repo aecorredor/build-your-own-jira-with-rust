@@ -1,32 +1,33 @@
 mod type_as_constraints {
-    use std::collections::HashMap;
-    use chrono::{DateTime, Utc};
-    use super::recap::Status;
     use super::id_generation::TicketId;
+    use super::recap::Status;
+    use chrono::{DateTime, Utc};
+    use std::collections::HashMap;
 
-    /// We know that id and creation time will never be there before a ticket is saved,
-    /// while they will always be populated after `save` has been called.
+    /// We know that id and creation time will never be there before a ticket is
+    /// saved, while they will always be populated after `save` has been called.
     ///
-    /// The approach we followed in the previous koan has its limitations: every time we
-    /// access `id` and `created_at` we need to keep track of the "life stage" of our ticket.
-    /// Has it been saved yet? Is it safe to unwrap those `Option`s?
-    /// That is unnecessary cognitive load and leads to errors down the line,
-    /// when writing new code or refactoring existing functionality.
+    /// The approach we followed in the previous koan has its limitations: every
+    /// time we access `id` and `created_at` we need to keep track of the "life
+    /// stage" of our ticket. Has it been saved yet? Is it safe to unwrap those
+    /// `Option`s? That is unnecessary cognitive load and leads to errors down
+    /// the line, when writing new code or refactoring existing functionality.
     ///
-    /// We can do better.
-    /// We can use types to better model our domain and constrain the behaviour of our code.
+    /// We can do better. We can use types to better model our domain and
+    /// constrain the behaviour of our code.
     ///
-    /// Before `TicketStore::save` is called, we are dealing with a `TicketDraft`.
-    /// No `created_at`, no `id`, no `status`.
-    /// On the other side, `TicketStore::get` will return a `Ticket`, with a `created_at` and
-    /// an `id`.
+    /// Before `TicketStore::save` is called, we are dealing with a
+    /// `TicketDraft`. No `created_at`, no `id`, no `status`.
+    /// On the other side, `TicketStore::get` will return a `Ticket`, with a
+    /// `created_at` and an `id`.
     ///
-    /// There will be no way to create a `Ticket` without passing through the store:
-    /// we will enforce `save` as the only way to produce a `Ticket` from a `TicketDraft`.
-    /// This will ensure as well that all tickets start in a `ToDo` status.
+    /// There will be no way to create a `Ticket` without passing through the
+    /// store: we will enforce `save` as the only way to produce a `Ticket` from
+    /// a `TicketDraft`. This will ensure as well that all tickets start in a
+    /// `ToDo` status.
     ///
-    /// Less room for errors, less ambiguity, you can understand the domain constraints
-    /// by looking at the signatures of the functions in our code.
+    /// Less room for errors, less ambiguity, you can understand the domain
+    /// constraints by looking at the signatures of the functions in our code.
     ///
     /// On the topic of type-driven development, checkout:
     /// - https://fsharpforfunandprofit.com/series/designing-with-types.html
@@ -36,12 +37,44 @@ mod type_as_constraints {
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct TicketDraft {
-        __
+        title: String,
+        description: String,
+    }
+
+    impl TicketDraft {
+        pub fn title(&self) -> &String {
+            &self.title
+        }
+        pub fn description(&self) -> &String {
+            &self.description
+        }
     }
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct Ticket {
-        __
+        title: String,
+        description: String,
+        status: Status,
+        created_at: DateTime<Utc>,
+        id: TicketId,
+    }
+
+    impl Ticket {
+        pub fn title(&self) -> &String {
+            &self.title
+        }
+        pub fn description(&self) -> &String {
+            &self.description
+        }
+        pub fn status(&self) -> &Status {
+            &self.status
+        }
+        pub fn created_at(&self) -> &DateTime<Utc> {
+            &self.created_at
+        }
+        pub fn id(&self) -> &TicketId {
+            &self.id
+        }
     }
 
     struct TicketStore {
@@ -50,27 +83,29 @@ mod type_as_constraints {
     }
 
     impl TicketStore {
-        pub fn new() -> TicketStore
-        {
+        pub fn new() -> TicketStore {
             TicketStore {
                 data: HashMap::new(),
                 current_id: 0,
             }
         }
 
-        pub fn save(&mut self, draft: TicketDraft) -> TicketId
-        {
+        pub fn save(&mut self, draft: TicketDraft) -> TicketId {
             let id = self.generate_id();
 
             // We can use the "raw" constructor for `Ticket` here because the
             // store is defined in the same module of `Ticket`.
             // If you are importing `Ticket` from another module,
-            // `TicketStore::get` will indeed be the only way to get your hands on
-            // an instance of `Ticket`.
+            // `TicketStore::get` will indeed be the only way to get your hands
+            // on an instance of `Ticket`.
             // This enforces our desired invariant: saving a draft in the store
             // is the only way to "create" a `Ticket`.
             let ticket = Ticket {
-
+                title: draft.title().clone(),
+                description: draft.description().clone(),
+                status: Status::ToDo,
+                created_at: Utc::now(),
+                id,
             };
             self.data.insert(id, ticket);
             id
@@ -86,19 +121,6 @@ mod type_as_constraints {
         }
     }
 
-    impl TicketDraft {
-        pub fn title(&self) -> &String { todo!() }
-        pub fn description(&self) -> &String { todo!() }
-    }
-
-    impl Ticket {
-        pub fn title(&self) -> &String { todo!() }
-        pub fn description(&self) -> &String { todo!() }
-        pub fn status(&self) -> &Status { todo!() }
-        pub fn created_at(&self) -> &DateTime<Utc> { todo!() }
-        pub fn id(&self) -> &TicketId { todo!() }
-    }
-
     pub fn create_ticket_draft(title: String, description: String) -> TicketDraft {
         if title.is_empty() {
             panic!("Title cannot be empty!");
@@ -110,20 +132,16 @@ mod type_as_constraints {
             panic!("A description cannot be longer than 3000 characters!");
         }
 
-        TicketDraft {
-            title,
-            description,
-        }
+        TicketDraft { title, description }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
-        use fake::{Faker, Fake};
+        use fake::{Fake, Faker};
 
         #[test]
-        fn a_ticket_with_a_home()
-        {
+        fn a_ticket_with_a_home() {
             let draft = generate_ticket_draft();
             let mut store = TicketStore::new();
 
@@ -137,8 +155,7 @@ mod type_as_constraints {
         }
 
         #[test]
-        fn a_missing_ticket()
-        {
+        fn a_missing_ticket() {
             let ticket_store = TicketStore::new();
             let ticket_id = Faker.fake();
 
@@ -146,8 +163,7 @@ mod type_as_constraints {
         }
 
         #[test]
-        fn id_generation_is_monotonic()
-        {
+        fn id_generation_is_monotonic() {
             let n_tickets = 100;
             let mut store = TicketStore::new();
 
